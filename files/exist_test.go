@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/aqyuki/goutil/files"
+	"github.com/google/uuid"
 )
 
 func TestExistFile(t *testing.T) {
@@ -22,7 +23,7 @@ func TestExistFile(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Case 1",
+			name: "ExistFile-case-1",
 			args: args{
 				filename: "sample.txt",
 			},
@@ -30,7 +31,7 @@ func TestExistFile(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Case 2",
+			name: "ExistFile-case-2",
 			args: args{
 				filename: "non.txt",
 			},
@@ -52,13 +53,62 @@ func TestExistFile(t *testing.T) {
 		got, err := files.ExistFile(path)
 
 		if err != nil && !tt.wantErr {
-			t.Errorf("test failure : got -> %+v want -> %+v err -> %+v wantError -> %+v\n", got, tt.want, err, tt.wantErr)
+			t.Errorf("%+v failure : got -> %+v want -> %+v err -> %+v wantError -> %+v\n", tt.name, got, tt.want, err, tt.wantErr)
 		}
 
 		if got != tt.want {
-			t.Errorf("test failure : got -> %+v want -> %+v err -> %+v wantError -> %+v\n", got, tt.want, err, tt.wantErr)
+			t.Errorf("%+v failure : got -> %+v want -> %+v err -> %+v wantError -> %+v\n", tt.name, got, tt.want, err, tt.wantErr)
 		}
 
-		t.Logf("pass %+v\n", tt.name)
+	}
+}
+
+func TestExistDir(t *testing.T) {
+	tmp := t.TempDir()
+
+	u, err := uuid.NewRandom()
+	if err != nil {
+		t.Errorf("%+v\n", err)
+	}
+
+	type args struct {
+		path string
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		want    bool
+		wantErr bool
+	}{
+		{
+			name: "ExistDir-case-1",
+			args: args{
+				path: tmp,
+			},
+			want:    true,
+			wantErr: false,
+		},
+		{
+			name: "ExistDir-case-2",
+			args: args{
+				path: filepath.Join(tmp, u.String()),
+			},
+			want:    false,
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+
+		got, err := files.ExistDir(tt.args.path)
+
+		if err != nil && !tt.wantErr {
+			t.Errorf("%+v failure : got -> %+v want -> %+v err -> %+v wantError -> %+v\n", tt.name, got, tt.want, err, tt.wantErr)
+		}
+
+		if got != tt.want {
+			t.Errorf("%+v failure : got -> %+v want -> %+v err -> %+v wantError -> %+v\n", tt.name, got, tt.want, err, tt.wantErr)
+		}
 	}
 }
